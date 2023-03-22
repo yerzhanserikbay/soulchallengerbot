@@ -202,6 +202,4 @@ cmake-build-*/
 
 staticfiles/
 *.DS_Store
-new_car/
-documents/
-new-cars.dump
+documents/invoices/*
