@@ -43,7 +43,7 @@ def get_main_menu_buttons():
 async def send_payment(update, context: ContextTypes.DEFAULT_TYPE):
     text = """
 Для оплаты:
-1. Отправьте 10 000 тенге на KASPI по номеру +7 705 570 18 04 Чингис  С.
+1. Отправьте 7 000 тенге на KASPI по номеру +7 705 570 18 04 Чингис С.
 \nЛибо по номеру карты 4400 4301 7722 9587 CHINGIS SADUYEV
 \n2. Сохранив чек о переводе, отправьте его сюда в качестве фото.
     """
