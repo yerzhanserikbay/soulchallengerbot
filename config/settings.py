@@ -166,3 +166,4 @@ CELERY_DEFAULT_QUEUE = "default"
 CELERY_DEFAULT_EXCHANGE = "default"
 CELERY_DEFAULT_ROUTING_KEY = "default"
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
+CELERY_IMPORTS = ("app.tasks",)

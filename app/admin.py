@@ -22,7 +22,8 @@ class UserAdmin(admin.ModelAdmin):
 
     def send_approve_message(self, request, queryset):
         for q in queryset:
-            async_to_sync(send_message_to_client)(q.user_id)
+            text = "Ваша заявка одобрена, для старта нишите команду /start"
+            async_to_sync(send_message_to_client)(q.user_id, text)
             client = Client.objects.get(user_id=q.user_id)
             client.approve_notified = True
             client.save()
