@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "app",
     "channels",
+    "django_celery_beat",
 ]
 
 MIDDLEWARE = [
@@ -80,12 +81,16 @@ WSGI_APPLICATION = "config.wsgi.application"
 
 
 # Database
-# https://docs.djangoproject.com/en/4.1/ref/settings/#databases
+# https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        "NAME": env.str("POSTGRES_DB"),
+        "USER": env.str("POSTGRES_USER"),
+        "PASSWORD": env.str("POSTGRES_PASSWORD"),
+        "HOST": env.str("POSTGRES_HOST"),
+        "PORT": env.str("POSTGRES_PORT"),
     }
 }
 
@@ -122,10 +127,14 @@ USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.1/howto/static-files/
+# https://docs.djangoproject.com/en/4.0/howto/static-files/
 
-STATIC_ROOT = os.path.join(BASE_DIR, "static")
+STATIC_ROOT = "/app/var/static"
 STATIC_URL = env.str("STATIC_URL", "/static/")
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
@@ -133,3 +142,27 @@ STATIC_URL = env.str("STATIC_URL", "/static/")
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = "true"
+
+
+# Redis settings
+
+REDIS_URL = env.str("REDIS_URL")
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": REDIS_URL,
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
+    }
+}
+
+# Celery settings
+
+CELERY_BROKER_URL = REDIS_URL
+CELERY_ENABLE_UTC = True
+CELERY_DEFAULT_QUEUE = "default"
+CELERY_DEFAULT_EXCHANGE = "default"
+CELERY_DEFAULT_ROUTING_KEY = "default"
+CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
