@@ -1,7 +1,7 @@
 import logging
 
 from channels.db import database_sync_to_async
-from django.db import IntegrityError
+from django.db import DatabaseError, IntegrityError
 
 from app.models import Client, Habit
 
@@ -41,3 +41,25 @@ async def create_user(
 @database_sync_to_async
 def check_user_exists(user_id):
     return Client.objects.filter(user_id=user_id).exists()
+
+
+@database_sync_to_async
+def get_user_habits(user_id):
+    return Habit.objects.filter(user__user_id=user_id).all()
+
+
+@database_sync_to_async
+def set_habit_score(habit_id, habit_score):
+    try:
+        habit = Habit.objects.get(id=habit_id)
+        habit.habit_score += int(habit_score)
+        habit.save()
+        return True
+
+    except (IntegrityError, DatabaseError) as error:
+        logger.info(f"Received set_habit_score with parameter error: {error}")
+        return False
+
+
+def get_my_stats(user_id):
+    pass

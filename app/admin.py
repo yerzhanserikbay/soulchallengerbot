@@ -30,6 +30,16 @@ class UserAdmin(admin.ModelAdmin):
 
     send_approve_message.short_description = _("Send Approve Message to Bot")
 
+    def send_custom_message(self, request, queryset):
+        for q in queryset:
+            text = "Обновите бот нажав /start"
+            async_to_sync(send_message_to_client)(q.user_id, text)
+            client = Client.objects.get(user_id=q.user_id)
+            client.approve_notified = True
+            client.save()
+
+    send_custom_message.short_description = _("Send Custom Message to Bot")
+
 
 @admin.register(Batch)
 class BatchAdmin(admin.ModelAdmin):

@@ -11,7 +11,7 @@ from .info_service import (
     send_price_info,
     send_register_habits_info,
 )
-from .users_service import check_user_exists
+from .users_service import check_user_exists, set_habit_score
 
 # Enable logging
 logging.basicConfig(
@@ -91,6 +91,17 @@ async def inline_keyboards_buttons_switcher(
                     )
 
     elif client_path == "user":
+        if type_path == "profile":
+            match action_path:
+                case "send_user_habits":
+                    await user_buttons.send_user_habits(query, context)
+                case "send_user_stats":
+                    await user_buttons.send_user_stats(query, context)
+        if type_path == "set_habit_score":
+            habit_score, habit_id = action_path.split("-")
+            if await set_habit_score(habit_id, habit_score):
+                await user_buttons.send_habit_accepted(query, context)
+
         if type_path == "qa":
             match action_path:
                 case "send_ask_question_info":

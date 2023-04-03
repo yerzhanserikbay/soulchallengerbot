@@ -46,7 +46,9 @@ class Habit(models.Model):
     habit_title = models.CharField(
         _("habit_title"), max_length=512, blank=True, null=True
     )
-    habit_score = models.IntegerField(_("habit_score"), blank=True, null=True)
+    habit_score = models.IntegerField(
+        _("habit_score"), default=0, blank=True, null=True
+    )
     user = models.ForeignKey(
         Client, verbose_name="users", on_delete=models.CASCADE, related_name="habit"
     )
