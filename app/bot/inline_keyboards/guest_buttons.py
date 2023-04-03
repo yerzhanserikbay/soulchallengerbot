@@ -6,6 +6,7 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
 
 from ..services.users_service import create_user
+from . import user_buttons
 
 # Enable logging
 logging.basicConfig(
@@ -18,7 +19,7 @@ INVOICE_IMAGE_HANDLER = False
 
 def get_main_menu_buttons():
     button1 = InlineKeyboardButton(
-        "Пройти регистрацию 🚀", callback_data="guest/register/send_payment"
+        "Пройти регистрацию 🚀", callback_data="guest/register/send_register_habits"
     )
     button2 = InlineKeyboardButton(
         "О Ramadan Tracker? ⁉️", callback_data="guest/info/send_about_service_info"
@@ -49,7 +50,7 @@ async def send_payment(update, context: ContextTypes.DEFAULT_TYPE):
     """
 
     button1 = InlineKeyboardButton(
-        "Назад 🔙", callback_data="guest/register/get_back_main_menu"
+        "Назад 🔙", callback_data="guest/register_habits/check_payment"
     )
 
     keyboard = [[button1]]
@@ -63,7 +64,6 @@ async def send_payment(update, context: ContextTypes.DEFAULT_TYPE):
 # Define the callback functions for each state
 async def habit_message_handler(update, context):
     message_text = update.message.text
-    # Do something with the message text...
     context.user_data["message_text"] = message_text
     split_message_text = message_text.split("\n\n")
 
@@ -78,7 +78,7 @@ async def habit_message_handler(update, context):
 2. {split_message_text[2].replace("2 ", "")}
         """
         button1 = InlineKeyboardButton(
-            "Верно", callback_data="guest/register_habits/send_success"
+            "Верно", callback_data="guest/register_habits/check_payment"
         )
         button2 = InlineKeyboardButton(
             "Хочу исправить", callback_data="guest/register_habits/send_change_habits"
@@ -108,6 +108,51 @@ async def habit_message_handler(update, context):
 
         # Delete the user's last message
         await context.bot.delete_message(chat_id=chat_id, message_id=message_id)
+
+
+async def check_payment(update, context: ContextTypes.DEFAULT_TYPE):
+    text = """
+Вы уже оплатили?
+    """
+
+    button1 = InlineKeyboardButton(
+        "Да", callback_data="guest/register_habits/send_success"
+    )
+    button2 = InlineKeyboardButton(
+        "Нет", callback_data="guest/register_habits/send_payment"
+    )
+
+    keyboard = [[button1], [button2]]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    context.user_data["last_query"] = update
+
+    await update.edit_message_text(text=text, reply_markup=reply_markup)
+
+
+async def send_success_registration(update, context: ContextTypes.DEFAULT_TYPE):
+    last_query = context.user_data["last_query"]
+    user_fullname = context.user_data["user_fullname"]
+    user_login = context.user_data["user_login"]
+    chat_id = update.message.chat_id
+
+    reply_text = "Поздравляем Вас, Вы зарегистрировались 🥳"
+
+    user_habits = context.user_data["user_habits"]
+
+    sync_to_async(
+        await create_user(
+            user_id=chat_id,
+            full_name=user_fullname,
+            login=user_login,
+            payment_status=False,
+            habits=user_habits,
+        )
+    )
+
+    await last_query.edit_message_text(
+        text=reply_text, reply_markup=user_buttons.get_main_menu_buttons()
+    )
 
 
 async def invoice_image_handler(update, context):

@@ -31,7 +31,9 @@ async def create_user(
         user.save()
         for habit in habits:
             Habit.objects.create(habit_title=habit, user=user)
-        logger.info(f"Received create_user with parameter user: {user}")
+        logger.info(
+            f"Received create_user with parameter user, full_name: {user} {full_name}"
+        )
     except IntegrityError as error:
         logger.info(f"Received create_user with parameter IntegrityError: {error}")
 

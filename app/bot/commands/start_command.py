@@ -37,6 +37,10 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
             f"\nДобро пожаловать в Ramadan Tracker. "
             f"\nПожалуйста, пройдите регистрацию."
         )
+
+        context.user_data["user_fullname"] = f"{user.first_name} {user.last_name}"
+        context.user_data["user_login"] = user.username
+
         await context.bot.send_message(
             chat_id=update.message.chat.id,
             text=text,

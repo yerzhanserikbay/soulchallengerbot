@@ -58,13 +58,16 @@ async def inline_keyboards_buttons_switcher(
         if type_path == "payment":
             match action_path:
                 case "send_payment":
-                    pass
+                    await guest_buttons.send_payment(query, context)
                 case "check_invoice":
                     pass
         elif type_path == "register_habits":
             match action_path:
+                case "check_payment":
+                    await guest_buttons.check_payment(query, context)
                 case "send_success":
-                    print("herepr")
+                    await guest_buttons.send_success_registration(query, context)
+                case "send_payment":
                     await guest_buttons.send_payment(query, context)
                 case "send_change_habits":
                     # clean user_habits
